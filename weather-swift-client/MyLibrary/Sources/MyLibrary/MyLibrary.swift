@@ -1,3 +1,8 @@
+
+import XCTest
+import MyLibrary
+
+//commit 1 
 public class MyLibrary {
     private let weatherService: WeatherService
 
@@ -9,36 +14,43 @@ public class MyLibrary {
         self.weatherService = weatherService ?? WeatherServiceImpl()
     }
 
-    public func isLucky(_ number: Int, completion: @escaping (Bool?) -> Void) {
-        // Check the simple case first: 3, 5 and 8 are automatically lucky.
-        if number == 3 || number == 5 || number == 8 {
-            completion(true)
-            return
-        }
 
-        // Fetch the current weather from the backend.
-        // If the current temperature, in Farenheit, contains an 8, then that's lucky.
-        weatherService.getTemperature { response in
-            switch response {
-            case let .failure(error):
-                print(error)
-                completion(nil)
+final class MyLibraryTests: XCTestCase {
+    func testHello() throws {
+        // Given
+        let myLibrary = MyLibrary()
+        let expectation = XCTestExpectation(description: "Ping the welcome page but heard back 🎄")
+        var msgReceived: Bool?
 
-            case let .success(temperature):
-                if self.contains(temperature, "8") {
-                    completion(true)
-                } else {
-                    let isLuckyNumber = self.contains(temperature, "8")
-                    completion(isLuckyNumber)
-                }
-            }
-        }
+        // When
+        myLibrary.isMsgReceived(completion: { lucky in
+            msgReceived = lucky
+            expectation.fulfill()
+        })
+
+        wait(for: [expectation], timeout: 5)
+
+        // Then
+        XCTAssertNotNil(msgReceived)
+        XCTAssert(msgReceived == true)
     }
 
-    /// Sample usage:
-    ///   `contains(558, "8")` would return `true` because 588 contains 8.
-    ///   `contains(557, "8")` would return `false` because 577 does not contain 8.
-    private func contains(_ lhs: Int, _ rhs: Character) -> Bool {
-        return String(lhs).contains(rhs)
+    func testWeather() throws {
+        // Given
+        let myLibrary = MyLibrary()
+        let number = 0
+        let expectation = XCTestExpectation(description: "We asked about the number 8 and heard back 🎄")
+        var isLuckyNumber: Bool?
+
+        // When
+        myLibrary.isLucky(number, completion: { lucky in
+            isLuckyNumber = lucky
+            expectation.fulfill()
+        })
+
+        wait(for: [expectation], timeout: 5)
+
+        // Then
+        XCTAssertNotNil(isLuckyNumber)
+        XCTAssert(isLuckyNumber == true)
     }
-}
